@@ -1,0 +1,25 @@
+{
+  "name": "clish",
+  "version": "1.0.0",
+  "description": "a http client for HTTP/2",
+  "main": "clish.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/master-genius/clish.git"
+  },
+  "keywords": [
+    "http",
+    "http2",
+    "http/2",
+    "httpclient"
+  ],
+  "author": "BraveWang",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/master-genius/clish/issues"
+  },
+  "homepage": "https://github.com/master-genius/clish#readme"
+}
