@@ -1,8 +1,13 @@
-
+/**
+ * clish 1.0.1
+ * Copyright (c) [2019.08] BraveWang
+ * This software is licensed under the MPL-2.0.
+ * You can use this software according to the terms and conditions of the MPL-2.0.
+ * See the MPL for more details:
+ *     https://www.mozilla.org/en-US/MPL/2.0/
+*/
 'use strict';
 
-/* const http = require('http');
-const https = require('https'); */
 const http2 = require('http2');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -154,35 +159,35 @@ module.exports = new function() {
 
             var method = headers[':method'];
             if (method == 'PUT' || method == 'POST') {
-                if (opts.data === undefined) {
+                if (opts.body === undefined) {
                     throw new Error('PUT/POST must with body data');
                 }
             }
 
             if (method == 'POST' 
                 || method == 'PUT' 
-                || (method == 'DELETE' && opts.data)
+                || (method == 'DELETE' && opts.body)
             ) {
                 ht.bodyData = '';
                 if (headers['content-type'] === undefined) {
                     headers['content-type'] = 'application/x-www-form-urlencoded';
-                    if (typeof opts.data === 'string') {
+                    if (typeof opts.body === 'string') {
                         headers['content-type'] = 'text/plain';
                     }
                 }
 
                 if (headers['content-type'] == 'application/x-www-form-urlencoded') {
                     
-                    ht.bodyData = Buffer.from(qs.stringify(opts.data)).toString('binary');
+                    ht.bodyData = Buffer.from(qs.stringify(opts.body)).toString('binary');
                     headers['content-length'] = ht.bodyData.length;
 
                 } else if (headers['content-type'] === 'multipart/form-data') {
                     var upload_data = {};
-                    if (opts.data.files) {
-                        upload_data.files = the.preLoadFiles(opts.data.files);
+                    if (opts.body.files) {
+                        upload_data.files = the.preLoadFiles(opts.body.files);
                     }
-                    if (opts.data.form) {
-                        upload_data.formdata = opts.data.form;
+                    if (opts.body.form) {
+                        upload_data.formdata = opts.body.form;
                     }
                     ht.bodyData = the.makeUploadData(upload_data);
                     headers['content-type'] = ht.bodyData['content-type'];
@@ -191,9 +196,9 @@ module.exports = new function() {
                     upload_data = {};
                 } else {
                     ht.bodyData = Buffer.from(
-                            typeof opts.data === 'object' 
-                            ? JSON.stringify(opts.data) 
-                            : opts.data
+                            typeof opts.body === 'object' 
+                            ? JSON.stringify(opts.body) 
+                            : opts.body
                         ).toString('binary');
                     headers['content-length'] = ht.bodyData.length;
                 }
@@ -409,39 +414,36 @@ module.exports = new function() {
                             {encoding:'binary'}
                         );
                     }
-
-                    if (downStream !== null) {
-                        t.on('data', (data) => {
-                            if (downStream === null) {
-                                retData += data.toString('binary');
-                                down_length = retData.length;
-                            } else {
-                                if (retData.length > 0) {
-                                    downStream.write(retData, 'binary');
-                                    retData = '';
-                                }
-                                down_length += data.length;
-                                downStream.write(data, 'binary');
-                            }
-                            if (opts.progress && total_length > 0) {
-                                if (down_length >= total_length) {
-                                    console.clear();
-                                    console.log('100.00%');
-                                }
-                                else if (progressCount > 25) {
-                                  console.clear();
-                                  console.log(`${((down_length/total_length)*100).toFixed(2)}%`);
-                                  progressCount = 0;
-                                }
-                            }
-                        });
-                        sid = setInterval(() => {progressCount+=1;}, 20);
-                    } else {
-                        t.on('data', data => {
-                            retData = data.toString('utf8');
-                            console.log(retData);
-                        });
+                    if (downStream === null) {
+                        t.destroy();
+                        ht.session.close();
+                        rj(new Error('null write stream'));
                     }
+                    t.on('data', (data) => {
+                        if (downStream === null) {
+                            retData += data.toString('binary');
+                            down_length = retData.length;
+                        } else {
+                            if (retData.length > 0) {
+                                downStream.write(retData, 'binary');
+                                retData = '';
+                            }
+                            down_length += data.length;
+                            downStream.write(data, 'binary');
+                        }
+                        if (opts.progress && total_length > 0) {
+                            if (down_length >= total_length) {
+                                console.clear();
+                                console.log('100.00%');
+                            }
+                            else if (progressCount > 25) {
+                              console.clear();
+                              console.log(`${((down_length/total_length)*100).toFixed(2)}%`);
+                              progressCount = 0;
+                            }
+                        }
+                    });
+                    sid = setInterval(() => {progressCount+=1;}, 20);
                 });
                 
                 t.on('end', () => {

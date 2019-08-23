@@ -1,6 +1,6 @@
 {
   "name": "clish",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a http client for HTTP/2",
   "main": "clish.js",
   "scripts": {
