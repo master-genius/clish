@@ -41,7 +41,7 @@ var clish = function (options = {}) {
   this.bodymaker = new bodymaker(this.opts);
 };
 
-clish.prototype.parseUrl = () => {
+clish.prototype.parseUrl = function () {
   var urlobj = new urlparse.URL(url);
   var headers = {
     ':method' : 'GET',
@@ -63,7 +63,7 @@ clish.prototype.parseUrl = () => {
   };
 };
 
-clish.prototype.initConn = (url, options = null) => {
+clish.prototype.initConn = function (url, options = null) {
   var h = null;
   if (options) {
     h = http2.connect(url, options);
@@ -82,7 +82,7 @@ clish.prototype.initConn = (url, options = null) => {
   return h;
 };
 
-clish.prototype.init = (url, conn_options=null) => {
+clish.prototype.init = function (url, conn_options=null) {
   var ht = {};
   var parseurl = this.parseUrl(url);
   ht.headers = parseurl.headers;
